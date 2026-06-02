@@ -30,15 +30,8 @@ export const addProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   try {
 
-    const pipeline_product = {
-      $lookup : {
-        from : "categories", 
-        localField  : "categoryId",
-        foreignField : "_id",
-        as : "product-category"
-      }
-    }
-    const products = await Product.pipeline([pipeline_product]);
+  
+    const products = await Product.find().populate("categoryId", "categoryName").populate ("supplierId", "name");
     const suppliers = await Supplier.find();
     const categories = await Category.find();
     return res.status(200).json({ success: true, products, suppliers, categories });

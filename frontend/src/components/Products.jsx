@@ -2,7 +2,7 @@
 import axios from "axios";
 import {useEffect, useState} from "react";
 
-const Products = () => {
+const Products = () => { 
     const [openModal, setOpenModal] = useState(false);
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
