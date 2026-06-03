@@ -71,6 +71,7 @@ export const updateSupplier = async (req, res) => {
       .json({ success: false, message: "Server error in updating supplier" });
   }
 };
+
 export const deleteSupplier = async (req, res) => {
   try {
     const { id } = req.params;

@@ -7,6 +7,8 @@ const Products = () => {
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [products, setProducts] = useState([]);
+    const [editProduct, setEditProduct] = useState(null);
+    const [filteredProducts, setFilteredProducts] = useState([]);
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -28,6 +30,7 @@ const Products = () => {
         setProducts(response.data.products);
         setSuppliers(response.data.suppliers );
       setCategories(response.data.categories );
+      setFilteredProducts(response.data.products);
 
       }else {
         console.error("Failed to fetch products", response.data);
@@ -52,12 +55,104 @@ const Products = () => {
      [name]: value,
      }));
     }
-  
+
+    const handleEdit = (product) => {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        categoryId: product.categoryId._id, 
+        supplierId: product.supplierId._id,
+      });
+      setOpenModal(true);
+      setEditProduct(product._id);
+    };
+
+    const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/api/products/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        alert("Product deleted successfully");
+        fetchProducts();
+      } else {
+        alert("Failed to delete product");
+      }
+    } catch (error) {
+      console.error("Error deleting product", error);
+      alert("Error deleting product");
+    }
+  };
+
+    const closeModal = () => {
+      setOpenModal(false);
+      setEditProduct(null); 
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        categoryId: "",
+        supplierId: "",
+      });
+    }
+
+    const handleSearch = (e) => {
+      setFilteredProducts(
+        products.filter((product) =>
+          product.name.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
+    }
 
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  try {
+  if (editProduct) {
+    try{
+      const response = await axios.put(
+        `http://localhost:3000/api/products/${editProduct}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("pos-token")}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        fetchProducts(); 
+        alert("Product updated successfully");  
+        setOpenModal(false);
+        setEditProduct(null);
+        setFormData({
+          name: "",
+          description: "",
+          price: "",
+          stock: "",
+          categoryId: "",
+          supplierId: "",
+        });
+       
+      } else {
+        console.error("Failed to update product", response.data); // ✅ fixed
+        alert("Failed to update product. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting product", error);
+      alert("Something went wrong. Please try again.");
+    }
+  }
+  else {
+    try {
     const response = await axios.post(
     "http://localhost:3000/api/products/add",
           formData,
@@ -69,7 +164,7 @@ const handleSubmit = async (e) => {
         );
 
         if (response.data.success) {
-          // fetchSuppliers(); 
+          fetchProducts(); 
           alert("Products added successfully");  
           setOpenModal(false);
           setFormData({
@@ -91,6 +186,10 @@ const handleSubmit = async (e) => {
       alert("Something went wrong. Please try again.");
     }
 
+  }
+
+  
+
  }
 
   return (
@@ -101,7 +200,7 @@ const handleSubmit = async (e) => {
             type="text" 
             placeholder="Search " 
             className="border p-1 bg-white rounded px-4" 
-            // onChange={handleSearch} 
+            onChange={handleSearch} 
             />
             <button 
             className="px-4 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
@@ -129,7 +228,7 @@ const handleSubmit = async (e) => {
 
                 <tbody>
 
-                  {Array.isArray(products) && products.map((product, index) => (
+                  {Array.isArray(filteredProducts) && filteredProducts.map((product, index) => (
                     <tr key={product._id}>
                       <td className="border border-gray-300 p-2">{index + 1}</td>
                       <td className="border border-gray-300 p-2">{product.name}</td>
@@ -137,7 +236,7 @@ const handleSubmit = async (e) => {
                       <td className="border border-gray-300 p-2">{product.supplierId.name }</td>
                       <td className="border border-gray-300 p-2">{product.price }</td>
                       <td className="border border-gray-300 p-2">
-                        <span>
+                        <span className="px-2 py-1 rounded-full text-sm font-semibold">
                           {product.stock == 0 ? (
                             <span className="bg-red-50 text-red-500 py-1 px-2 rounded-full">{product.stock}</span>
                           ) :
@@ -170,14 +269,14 @@ const handleSubmit = async (e) => {
 
               
                 </table>
-                {/* {filteredSuppliers.length === 0 && <div className="text-center p-4">No records found.</div>} */}
+                {filteredProducts.length === 0 && <div className="text-center p-4">No records found.</div>}
               </div>
 
            {openModal && (
             <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex justify-center items-center">
                   <div className="bg-white p-4 rounded shadow-md w-1/3 relative">
                     <h1 className="text-xl font-bold">Add Product</h1>
-                  <button className="absolute top-4 right-4 font-bold text-red-500 hover:text-red-700 text-lg cursor-pointer" onClick={() => setOpenModal(false)}>
+                  <button className="absolute top-4 right-4 font-bold text-red-500 hover:text-red-700 text-lg cursor-pointer" onClick={closeModal}>
                         X
                   </button>
                   <form className="flex flex-col gap-4 mt-4"  onSubmit={handleSubmit}>
@@ -208,6 +307,7 @@ const handleSubmit = async (e) => {
                         <input
                         type="number"
                         name="stock"
+                        min={0}
                         value={formData.stock}
                         onChange={handleChange}
                         placeholder="Enter Stock"
@@ -251,13 +351,13 @@ const handleSubmit = async (e) => {
                   type="submit"
                   className="w-full rounded-md bg-green-500 text-white p-3 cursor-pointer hover:bg-green-600 transition duration-200"
                 >
-                  Add Product
+                 {editProduct ? 'save changes' : 'Add Product'}
                 </button>
                
                   <button
                     type="button"
                     className="w-full rounded-md bg-gray-500 text-white p-3 cursor-pointer hover:bg-gray-600 transition duration-200"
-                    onClick={() => setOpenModal(false)}
+                    onClick={closeModal}
                   >
                     Cancel
                   </button>
