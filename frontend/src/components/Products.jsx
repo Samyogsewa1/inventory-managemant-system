@@ -4,10 +4,10 @@ import {useEffect, useState} from "react";
 
 const Products = () => { 
     const [openModal, setOpenModal] = useState(false);
+     const [editProduct, setEditProduct] = useState(null);
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [products, setProducts] = useState([]);
-    const [editProduct, setEditProduct] = useState(null);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [formData, setFormData] = useState({
         name: "",
@@ -47,6 +47,15 @@ const Products = () => {
     useEffect(() => {
         fetchProducts();
     }, [])
+
+    
+       const handleSearch = (e) => {
+      setFilteredProducts(
+        products.filter((product) =>
+          product.name.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
+    }
 
     const handleChange = (e) => {
       const { name, value } = e.target;
@@ -105,13 +114,7 @@ const Products = () => {
       });
     }
 
-    const handleSearch = (e) => {
-      setFilteredProducts(
-        products.filter((product) =>
-          product.name.toLowerCase().includes(e.target.value.toLowerCase())
-        )
-      );
-    }
+ 
 
 const handleSubmit = async (e) => {
   e.preventDefault();

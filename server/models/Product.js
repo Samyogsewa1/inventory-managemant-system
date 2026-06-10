@@ -10,6 +10,6 @@ const productSchema = new mongoose.Schema({
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
 }, { timestamps: true });   
 
-const ProductModel = mongoose.model('Product', productSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-export default ProductModel;
+export default Product;

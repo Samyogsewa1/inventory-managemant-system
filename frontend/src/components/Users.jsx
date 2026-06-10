@@ -10,6 +10,7 @@ const Users = () => {
     address: "",
     role: "user",
   });
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
  
@@ -23,6 +24,7 @@ const Users = () => {
         },
       });
       setUsers(response.data.users || []);
+      setFilteredUsers(response.data.users || []);
     } catch (error) {
       console.error("Error fetching users", error);
       setUsers([]);
@@ -70,6 +72,14 @@ const Users = () => {
       setFormData((prevData) => ({ ...prevData,
          [name]: value
          }));
+    }
+
+    const handleSearch = (e) => {
+      setFilteredUsers(
+        users.filter((user) =>
+          user.name.toLowerCase().includes(e.target.value.toLowerCase())
+        )
+      );
     }
 
   
@@ -189,6 +199,7 @@ const Users = () => {
           type="text"
           placeholder="Search users..."
           className="border w-full p-2 mb-4 rounded-md"
+          onChange={handleSearch}
         /> 
           <div className="bg-white shadow-md rounded-lg p-4">
             <table className="w-full border-collapse border border-gray-200 shadow-md rounded-lg">
@@ -203,8 +214,8 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(users) &&
-                  users.map((user, index) => (
+                {Array.isArray(filteredUsers) &&
+                  filteredUsers.map((user, index) => (
                     <tr key={user._id}>
                       <td className="border border-gray-200 p-2 text-center">
                         {index + 1}
@@ -234,6 +245,8 @@ const Users = () => {
                   ))}
               </tbody>
             </table>
+                {filteredUsers.length === 0 && <div className="text-center p-4">No records found.</div>}
+            
           </div>
         </div>
       </div>

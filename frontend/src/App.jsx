@@ -10,6 +10,9 @@ import Suppliers from './components/Suppliers';
 import Products from './components/Products'; 
 import Logout from './components/Logout';
 import Users from './components/Users';
+import CustomerProducts from './components/CustomerProducts';
+import Orders from './components/Orders';
+import Profile from './components/Profile';
 
 function App() {
   return (
@@ -17,7 +20,8 @@ function App() {
       <Routes> 
 
         <Route path='/' element={<Root /> } />
-        <Route path='/admin-dashboard' element={ 
+        <Route 
+        path='/admin-dashboard' element={ 
           <ProtectedRoutes requireRole={['admin']}>
           <Dashboard />
           </ProtectedRoutes>} 
@@ -57,7 +61,33 @@ function App() {
           </Route>
         
         
-        <Route path='/customer/dashboard' element={<h1>Customer dashboard</h1>} />
+        <Route 
+        path='/customer-dashboard'
+         element={<Dashboard />} 
+         >
+          <Route index element={<CustomerProducts />} 
+          />
+           <Route 
+            path='orders'
+            element={<Orders/>} 
+            />
+
+            <Route 
+            path='profile'
+            element={<Profile/>} 
+            />
+        
+
+          <Route 
+            path='logout'
+            element={<Logout/>} 
+            />
+        
+
+
+          </Route>
+        
+        
         <Route path='/login' element={<Login/>} />
         <Route path='/unauthorized' element={<p className='font-bold text-3xl mt-20 ml-20'>Unauthorized Access</p>} />
       </Routes>

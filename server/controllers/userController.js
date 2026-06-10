@@ -47,6 +47,46 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const getUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming authMiddleware sets req.user
+    const user = await User.findById(userId).select("-password"); // Exclude password from the response
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("Error fetching user", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error in getting user" });
+  }
+};
+
+export const updateUserProfile = async (req, res) => {
+ try {
+   const userId = req.user._id;
+  const {name, email, address, password } = req.body;
+
+  const updatedata= {name, email,address };
+
+  if(password && password.trim()  !== ''){
+    const hashedPassword = await bcrypt.hash(password, 10);
+    updatedata.password = hashedPassword ;
+  }
+  const user = await User.findByIdAndUpdate (userId, updatedata, { new:true}).select ('-password ');
+  if (!user){
+    return res.status (404).json({success:true , message:"User not found"});
+  }
+  return res.status(200).json ({success:true, message:'Prifile updated successfully', user});
+  
+ }catch(error) {
+    console.error("Error deleting user", error);
+    return res.status(500).json({ success: false, message: "Server error in updating user" });
+  }
+}
 
 // ✅ Added deleteUser to match frontend
 export const deleteUser = async (req, res) => {
