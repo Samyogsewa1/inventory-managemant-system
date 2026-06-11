@@ -116,8 +116,11 @@ const Categories = () => {
         alert("Failed to delete category");
       }
     } catch (error) {
-      console.error("Error deleting category", error);
-      alert("Error deleting category");
+      if (error.response){
+        alert(error.response.data.message);
+      }else {
+      alert("Error deleting category. Please try again.");
+      }
     }
   };
 

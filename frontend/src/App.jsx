@@ -13,6 +13,7 @@ import Users from './components/Users';
 import CustomerProducts from './components/CustomerProducts';
 import Orders from './components/Orders';
 import Profile from './components/Profile';
+import Summary from './components/Summary';
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
           >
             <Route 
             index
-            element={<h1>Summary of dashboard</h1>} 
+            element={<Summary/>} 
             />
             <Route 
             path='categories'
@@ -44,15 +45,15 @@ function App() {
             />
             <Route 
             path='orders'
-            element={<h1>Orders</h1>} 
+            element={<Orders/>} 
             />
             <Route 
             path='users'
             element={<Users/>} 
             />
             <Route 
-            path='profiles'
-            element={<h1>Profiles</h1>} 
+            path='profile'
+            element={<Profile/>} 
             />
             <Route 
             path='logout'

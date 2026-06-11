@@ -164,8 +164,11 @@ const handleDelete = async (id) => {
         alert("Failed to delete supplier");
       }
     } catch (error) {
-      console.error("Error deleting supplier", error);
-      alert("Error deleting supplier");
+      if (error.response){
+        alert(error.response.data.message);
+      }else {
+      alert("Error deleting category. Please try again.");
+      }
     }
   };
 

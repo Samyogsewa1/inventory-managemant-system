@@ -1,4 +1,6 @@
 import Category from "../models/Category.js";
+import ProductModel from "../models/Product.js";
+// import mongoose from "mongoose";
 
 export const addCategory = async (req, res) => {
   try {
@@ -75,6 +77,12 @@ export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
 
+
+    const productCount = await ProductModel.countDocuments({categoryId: id});
+
+    if (productCount > 0){
+      return res.status(400).json({success: false, message: "cannnot delete category connected with product"})
+    }
     const deletedCategory = await Category.findByIdAndDelete(id);
     if (!deletedCategory) {
       return res

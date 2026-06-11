@@ -1,4 +1,6 @@
 import Supplier from "../models/Supplier.js";
+import ProductModel from "../models/Product.js";
+import mongoose from "mongoose";
 
 export const addSupplier = async (req, res) => {
   try {
@@ -75,6 +77,16 @@ export const updateSupplier = async (req, res) => {
 export const deleteSupplier = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid supplier ID" });
+    }
+
+    const productCount = await ProductModel.countDocuments({supplierId: id});
+    
+        if (productCount > 0){
+          return res.status(400).json({success: false, message: "cannnot delete suppiler connected with product"})
+        }
 
     const deletedSupplier = await Supplier.findByIdAndDelete(id);
     if (!deletedSupplier) {
